@@ -11,7 +11,7 @@ class WelcomeView;
 class WelcomePresenter : public touchgfx::Presenter, public ModelListener
 {
 public:
-    WelcomePresenter(WelcomeView &v);
+    WelcomePresenter(WelcomeView& v);
 
     /**
      * The activate function is called automatically when this screen is "switched in"
@@ -30,7 +30,7 @@ public:
 private:
     WelcomePresenter();
 
-    WelcomeView &view;
+    WelcomeView& view;
 };
 
 #endif // WELCOMEPRESENTER_HPP

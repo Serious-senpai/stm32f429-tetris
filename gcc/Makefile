@@ -239,15 +239,11 @@ cpp_compiler_options +=
 include_paths += platform/os $(board_include_paths) $(os_include_paths)
 
 
-c_source_files := $(makefile_path_relative)/sysmem.c $(makefile_path_relative)/syscalls.c $(call find, $(source_paths),*.c) $(os_source_files) $(board_c_files)
+c_source_files := $(call find, $(source_paths),*.c) $(os_source_files) $(board_c_files)
 source_files += $(board_cpp_files)
 
 
 object_files := $(source_files) $(c_source_files)
-
-object_files := $(filter-out Core/Src/syscalls.c, $(object_files)) # ignore potential cmake duplicate
-object_files := $(filter-out Core/Src/sysmem.c, $(object_files)) # ignore potential cmake duplicate
-
 # Start converting paths
 object_files := $(object_files:$(touchgfx_path)/%.cpp=$(object_output_path)/touchgfx/%.o)
 object_files := $(object_files:%.cpp=$(object_output_path)/%.o)
@@ -296,7 +292,7 @@ $(binary_output_path)/$(target_executable): $(object_files) $(object_asm_files)
 	@mkdir -p $(object_output_path)
 	@$(file >$(build_root_path)/objects.tmp) $(foreach F,$(object_files),$(file >>$(build_root_path)/objects.tmp,$F))
 	@$(linker) \
-		$(linker_options) -T $(makefile_path_relative)/../STM32F429XX_FLASH.ld -Wl,-Map=$(@D)/application.map $(linker_options_local) \
+		$(linker_options) -T $(makefile_path_relative)/STM32F429ZITX_FLASH.ld -Wl,-Map=$(@D)/application.map $(linker_options_local) \
 		$(patsubst %,-L%,$(library_include_paths)) \
 		@$(build_root_path)/objects.tmp $(object_asm_files) -o $@ \
 		-Wl,--start-group $(patsubst %,-l%,$(libraries)) -Wl,--end-group

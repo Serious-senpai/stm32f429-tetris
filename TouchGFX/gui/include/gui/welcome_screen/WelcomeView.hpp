@@ -11,7 +11,6 @@ public:
     virtual ~WelcomeView() {}
     virtual void setupScreen();
     virtual void tearDownScreen();
-
 protected:
 };
 

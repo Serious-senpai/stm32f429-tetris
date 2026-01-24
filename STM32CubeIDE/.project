@@ -40,11 +40,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/STM32F429I_DISCO_REV_D01.ioc</locationURI>
 		</link>
 		<link>
-			<name>STM32F429XX_FLASH.ld</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/STM32F429XX_FLASH.ld</locationURI>
-		</link>
-		<link>
 			<name>Application/User/freertos.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Core/Src/freertos.c</locationURI>

@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextDatabase xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="texts.xsd" Version="4.26.0">
+<TextDatabase xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="texts.xsd" Version="4.25.0">
   <Languages>
     <Language Id="GB" />
   </Languages>
   <Texts>
     <TextGroup Id="Group1" />
     <TextGroup Id="Unsorted">
-      <Text Id="__SingleUse_CGVU" Alignment="Center" TypographyId="Default">
+      <Text Id="__SingleUse_QEWB" Alignment="Center" TypographyId="Small">
+        <Translation Language="GB">H.SCORE</Translation>
+      </Text>
+      <Text Id="__SingleUse_MSSD" Alignment="Center" TypographyId="Default">
         <Translation Language="GB">0</Translation>
       </Text>
-      <Text Id="__SingleUse_SKW8" Alignment="Center" TypographyId="Large">
+      <Text Id="__SingleUse_UVNA" Alignment="Center" TypographyId="Small">
+        <Translation Language="GB">SCORE</Translation>
+      </Text>
+      <Text Id="__SingleUse_YJPO" Alignment="Center" TypographyId="Default">
+        <Translation Language="GB">0</Translation>
+      </Text>
+      <Text Id="__SingleUse_L0QW" Alignment="Center" TypographyId="Large">
         <Translation Language="GB">START</Translation>
       </Text>
     </TextGroup>

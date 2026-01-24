@@ -2,6 +2,7 @@
 
 WelcomeView::WelcomeView()
 {
+
 }
 
 void WelcomeView::setupScreen()

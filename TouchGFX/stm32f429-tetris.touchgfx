@@ -5,38 +5,42 @@
         "Name": "Welcome",
         "Components": [
           {
-            "Type": "ScalableImage",
+            "Type": "TiledImage",
             "Name": "welcome_bg",
             "Width": 240,
             "Height": 320,
-            "Filename": "WelcomeBackground.png",
-            "ScalingAlgorithm": "Nearest-neighbor"
+            "LockPosition": true,
+            "FileName": "WelcomeBackground.png"
           },
           {
             "Type": "ScalableImage",
             "Name": "welcome_label",
-            "Y": 32,
+            "Y": 20,
             "Width": 240,
-            "Height": 107,
+            "Height": 100,
+            "LockPosition": true,
             "Filename": "WelcomeLabel.png",
             "ScalingAlgorithm": "Nearest-neighbor"
           },
           {
             "Type": "ButtonWithLabel",
             "Name": "start_button",
-            "Y": 198,
+            "Y": 200,
             "Width": 240,
             "Height": 50,
+            "LockPosition": true,
             "Pressed": "__generated\\alternate_theme_images_widgets_button_regular_height_50_medium_rounded_pressed.png",
             "Released": "__generated\\alternate_theme_images_widgets_button_regular_height_50_medium_rounded_normal.png",
-            "TextId": "__SingleUse_SKW8",
+            "TextId": "__SingleUse_L0QW",
             "ReleasedColor": {
               "Red": 255,
               "Green": 255,
               "Blue": 255
             },
             "PressedColor": {
-              "Red": 255
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
             },
             "TextRotation": "0",
             "Preset": "alternate_theme\\presets\\button\\regular\\height_50\\medium_rounded_normal.json"
@@ -44,7 +48,7 @@
         ],
         "Interactions": [
           {
-            "InteractionName": "Click",
+            "InteractionName": "ClickStart",
             "Trigger": {
               "Type": "TriggerClicked",
               "TriggerComponent": "start_button"
@@ -61,42 +65,94 @@
         "Name": "Game",
         "Components": [
           {
-            "Type": "ScalableImage",
+            "Type": "Image",
             "Name": "game_bg",
             "Width": 240,
             "Height": 320,
-            "Filename": "GameBackground.png",
-            "ScalingAlgorithm": "Nearest-neighbor"
+            "LockPosition": true,
+            "RelativeFilename": "GameBackground.png"
           },
           {
             "Type": "TiledImage",
             "Name": "score_bg",
             "Width": 60,
             "Height": 320,
+            "LockPosition": true,
             "FileName": "Solid.png"
           },
           {
             "Type": "TextArea",
             "Name": "score_text",
-            "X": 24,
-            "Y": 27,
-            "Width": 13,
+            "Y": 25,
+            "Width": 60,
             "Height": 20,
-            "TextId": "__SingleUse_CGVU",
+            "LockPosition": true,
+            "TextId": "__SingleUse_YJPO",
             "TextRotation": "0",
             "Color": {
               "Red": 255,
               "Green": 255,
               "Blue": 255
-            },
-            "AutoSize": true
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "score_label",
+            "Y": 10,
+            "Width": 60,
+            "Height": 10,
+            "LockPosition": true,
+            "TextId": "__SingleUse_UVNA",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "highscore_text",
+            "Y": 85,
+            "Width": 60,
+            "Height": 20,
+            "LockPosition": true,
+            "TextId": "__SingleUse_MSSD",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "highscore_label",
+            "Y": 70,
+            "Width": 60,
+            "Height": 10,
+            "LockPosition": true,
+            "TextId": "__SingleUse_QEWB",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255
+            }
+          },
+          {
+            "Type": "ScalableImage",
+            "Name": "block_l",
+            "X": 240,
+            "Width": 72,
+            "Height": 72,
+            "Filename": "Tetromino_I1_1.png",
+            "ScalingAlgorithm": "Nearest-neighbor"
           }
         ],
         "Interactions": []
       }
     ],
     "CustomContainerDefinitions": [],
-    "Name": "playground",
+    "Name": "stm32f429-tetris",
     "Resolution": {
       "Width": 240,
       "Height": 320
@@ -153,6 +209,6 @@
       "VectorFonts"
     ]
   },
-  "Version": "4.26.0",
-  "CreatedBy": "4.26.0"
+  "Version": "4.25.0",
+  "CreatedBy": "4.25.0"
 }
