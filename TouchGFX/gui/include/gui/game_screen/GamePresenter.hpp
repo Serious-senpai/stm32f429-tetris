@@ -11,7 +11,7 @@ class GameView;
 class GamePresenter : public touchgfx::Presenter, public ModelListener
 {
 public:
-    GamePresenter(GameView& v);
+    GamePresenter(GameView &v);
 
     /**
      * The activate function is called automatically when this screen is "switched in"
@@ -27,10 +27,15 @@ public:
 
     virtual ~GamePresenter() {}
 
+    virtual void on_score_change(uint32_t new_score) override;
+    virtual void on_highscore_change(uint32_t new_score) override;
+    virtual void display_board(const uint8_t board[TETRIS_BOARD_WIDTH][TETRIS_BOARD_HEIGHT]) override;
+    virtual void gameover() override;
+
 private:
     GamePresenter();
 
-    GameView& view;
+    GameView &view;
 };
 
 #endif // GAMEPRESENTER_HPP

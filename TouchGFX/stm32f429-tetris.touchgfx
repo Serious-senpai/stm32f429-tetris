@@ -63,6 +63,7 @@
       },
       {
         "Name": "Game",
+        "CanvasBufferSize": 3600,
         "Components": [
           {
             "Type": "Image",
@@ -93,7 +94,8 @@
               "Red": 255,
               "Green": 255,
               "Blue": 255
-            }
+            },
+            "Wildcard1": {}
           },
           {
             "Type": "TextArea",
@@ -122,7 +124,8 @@
             "Color": {
               "Red": 255,
               "Green": 255
-            }
+            },
+            "Wildcard1": {}
           },
           {
             "Type": "TextArea",
@@ -139,13 +142,36 @@
             }
           },
           {
-            "Type": "ScalableImage",
-            "Name": "block_l",
+            "Type": "Image",
+            "Name": "tile",
             "X": 240,
-            "Width": 72,
-            "Height": 72,
-            "Filename": "Tetromino_I1_1.png",
-            "ScalingAlgorithm": "Nearest-neighbor"
+            "Width": 18,
+            "Height": 18,
+            "RelativeFilename": "tile.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "gameover",
+            "X": 240,
+            "Y": 192,
+            "Width": 128,
+            "Height": 128,
+            "RelativeFilename": "depressed.png"
+          },
+          {
+            "Type": "Line",
+            "Name": "gameover_line",
+            "X": 60,
+            "Width": 180,
+            "Height": 320,
+            "Color": {
+              "Red": 255
+            },
+            "StartY": 32.0,
+            "EndX": 180.0,
+            "EndY": 32.0,
+            "LineWidth": 1.0,
+            "LineEndingStyle": "Butt"
           }
         ],
         "Interactions": []

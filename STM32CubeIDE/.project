@@ -185,6 +185,11 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_rng.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_sdram.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_sdram.c</locationURI>
@@ -475,41 +480,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_Solid.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/image_Tetromino_I1_1.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_Tetromino_I1_1.cpp</locationURI>
-		</link>
-		<link>
-			<name>Application/User/generated/image_Tetromino_J1_1.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_Tetromino_J1_1.cpp</locationURI>
-		</link>
-		<link>
-			<name>Application/User/generated/image_Tetromino_L1_1.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_Tetromino_L1_1.cpp</locationURI>
-		</link>
-		<link>
-			<name>Application/User/generated/image_Tetromino_O1_1.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_Tetromino_O1_1.cpp</locationURI>
-		</link>
-		<link>
-			<name>Application/User/generated/image_Tetromino_S1_1.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_Tetromino_S1_1.cpp</locationURI>
-		</link>
-		<link>
-			<name>Application/User/generated/image_Tetromino_T1_1.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_Tetromino_T1_1.cpp</locationURI>
-		</link>
-		<link>
-			<name>Application/User/generated/image_Tetromino_Z1_1.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_Tetromino_Z1_1.cpp</locationURI>
-		</link>
-		<link>
 			<name>Application/User/generated/image_WelcomeBackground.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_WelcomeBackground.cpp</locationURI>
@@ -518,6 +488,16 @@
 			<name>Application/User/generated/image_WelcomeLabel.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_WelcomeLabel.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_depressed.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_depressed.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_tile.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_tile.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/LanguageGb.cpp</name>
