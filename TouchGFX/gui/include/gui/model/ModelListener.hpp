@@ -2,7 +2,6 @@
 #define MODELLISTENER_HPP
 
 #include <stdint.h>
-
 #include <gui/common/Tetris.hpp>
 #include <gui/model/Model.hpp>
 

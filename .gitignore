@@ -1,3 +1,5 @@
+.venv
+
 # CubeMX
 .mxproject
 backup_*.ioc

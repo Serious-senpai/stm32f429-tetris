@@ -3,7 +3,6 @@
 
 #include <cstddef>
 #include <cstdint>
-
 #include <gui/common/Tetris.hpp>
 
 class ModelListener;

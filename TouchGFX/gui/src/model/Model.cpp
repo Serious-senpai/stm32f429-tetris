@@ -1,11 +1,10 @@
+#include <cmsis_os.h>
+#include <messages.h>
+#include <sounds.h>
+#include <stm32f4xx_hal.h>
 #include <string.h>
-
 #include <gui/model/Model.hpp>
 #include <gui/model/ModelListener.hpp>
-
-#include "cmsis_os.h"
-#include "messages.h"
-#include "stm32f4xx_hal.h"
 
 extern osMessageQueueId_t channel;
 extern RNG_HandleTypeDef hrng;
@@ -179,6 +178,7 @@ bool Model::_fall()
 
 void Model::_add_score()
 {
+    send_sfx_command("SCORE");
     modelListener->on_score_change(++_score);
     if (_score > _highscore)
     {
@@ -234,6 +234,7 @@ void Model::_check_final_state()
     if (gameover)
     {
         modelListener->gameover();
+        send_sfx_command("GAMEOVER");
         ingame = false;
     }
 
@@ -241,14 +242,14 @@ void Model::_check_final_state()
     _active.randomize();
 }
 
-Model::Model() : _active(), ingame(false), modelListener(nullptr)
+Model::Model() : _highscore(0), _active(), ingame(false), modelListener(nullptr)
 {
     reset();
 }
 
 void Model::reset()
 {
-    _score = _highscore = 0;
+    _score = 0;
     _active.randomize();
     memset(_board, 0, sizeof(_board));
 
@@ -296,6 +297,7 @@ void Model::tick()
             _active.move(-1, 0, _board);
         }
 
+        send_sfx_command("CONTROL");
         display();
     }
 
