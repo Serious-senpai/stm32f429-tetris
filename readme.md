@@ -39,128 +39,266 @@ This project implements the classic Tetris game on an STM32F429I-DISCO board. Th
 |-----------|---------------|
 | MCU | STM32F429ZIT6 (Cortex-M4, 180 MHz, FPU) |
 | Flash | 2 MB internal |
-| RAM | 256 KB (192 KB SRAM + 64 KB CCM) |
-| External SDRAM | 8 MB (64 Mbit IS42S16400J) |
+| SRAM | 192 KB |
+| CCM RAM | 64 KB |
+| Onboard SDRAM | 8 MB (IS42S16400J, mapped at 0xD0000000) |
 
 ### Display Subsystem
 
-The display subsystem consists of the ILI9341 LCD controller driving a 2.4" TFT panel. The LTDC (LCD-TFT Display Controller) peripheral manages frame buffer output with double buffering stored in external SDRAM. DMA2D (Chrom-ART Accelerator) handles hardware-accelerated 2D graphics operations including blitting, filling, and pixel format conversion.
+The ILI9341 LCD controller drives the onboard 2.4" TFT panel. The LTDC peripheral outputs frame data while DMA2D provides hardware-accelerated 2D graphics operations (blitting, filling, pixel format conversion).
 
 | Parameter | Value |
 |-----------|-------|
-| Resolution | 240 x 320 pixels (QVGA, Portrait) |
+| Resolution | 240 × 320 pixels (Portrait) |
 | Color Depth | 16-bit RGB565 |
-| Interface | Parallel RGB via LTDC |
-| Frame Buffer | Double-buffered in SDRAM |
+| Frame Buffer | Double-buffered in onboard SDRAM |
+| Animation Storage | Additional buffer for transitions |
+
+From `TouchGFXGeneratedHAL.cpp`:
+```cpp
+uint32_t frameBuf[(240 * 320 * 2 + 3) / 4 * 2];  // Double buffer
+uint32_t animationStorage[(240 * 320 * 2 + 3) / 4];  // Animation buffer
+```
 
 ### Touch Input Subsystem
 
-The STMPE811 touch controller provides resistive touchscreen input via I2C3 interface. Raw touch coordinates undergo calibration and filtering before being passed to the application layer. The controller supports both polling and interrupt-driven modes.
+The STMPE811 touch controller provides resistive touchscreen input via I2C3. Raw coordinates undergo calibration with different correction factors depending on board revision (`isRevD` flag).
 
 | Parameter | Value |
 |-----------|-------|
 | Controller | STMPE811 |
-| Interface | I2C3 (address 0x82) |
-| Type | 4-wire resistive |
+| I2C Address | 0x82 |
+| Calibration | Board revision-dependent (RevD vs earlier) |
+
+From `STM32TouchController.cpp`:
+```cpp
+#define TS_I2C_ADDRESS  0x82
+BSP_TS_Init(240, 320);
+```
 
 ### Audio Output Subsystem
 
-Audio is implemented as an external system where the MCU transmits sound effect commands over UART1 to a connected host computer. The host runs a Python script that receives these commands and plays corresponding WAV files.
+Sound effects are transmitted as null-terminated ASCII strings over UART1 to an external host computer running a Python audio player.
 
 | Parameter | Value |
 |-----------|-------|
-| Interface | UART1 |
+| Peripheral | UART1 (`huart1`) |
 | Baud Rate | 115200 |
-| Protocol | Null-terminated ASCII strings |
+| Protocol | Null-terminated strings |
+| Commands | `CONTROL`, `SCORE`, `GAMEOVER` |
+
+From `sounds.c`:
+```c
+HAL_UART_Transmit(&huart1, (uint8_t *)payload, strlen(payload) + 1, HAL_MAX_DELAY);
+```
+
+### Memory Map
+
+| Region | Address | Size | Usage |
+|--------|---------|------|-------|
+| Flash | 0x08000000 | 2 MB | Program code, constants |
+| SRAM | 0x20000000 | 192 KB | Variables, heap, stack |
+| CCM RAM | 0x10000000 | 64 KB | Fast access data |
+| SDRAM | 0xD0000000 | 8 MB | TouchGFX frame buffers |
 
 ## Software Architecture
 
 ### Layer Overview
 
-The software follows a layered architecture with clear separation of concerns:
 ```
-+--------------------------------------------------+
-|                Application Layer                 |
-|        (Game Logic, UI Screens, Presenters)      |
-+--------------------------------------------------+
-|                 TouchGFX Framework               |
-|        (Graphics Engine, Widget Library)         |
-+--------------------------------------------------+
-|                    FreeRTOS                      |
-|         (Task Scheduling, Synchronization)       |
-+--------------------------------------------------+
-|               Hardware Abstraction               |
-|          (HAL Drivers, BSP Components)           |
-+--------------------------------------------------+
-|                    Hardware                      |
-|       (STM32F429, Peripherals, External ICs)     |
-+--------------------------------------------------+
+┌──────────────────────────────────────────────────┐
+│              Application Layer                   │
+│      (Model, Views, Presenters, Game Logic)      │
+├──────────────────────────────────────────────────┤
+│              TouchGFX Framework                  │
+│       (Graphics Engine, Widget Library)          │
+├──────────────────────────────────────────────────┤
+│                  FreeRTOS                        │
+│       (Task Scheduling, Message Queues)          │
+├──────────────────────────────────────────────────┤
+│            Hardware Abstraction                  │
+│         (STM32 HAL, BSP Components)              │
+├──────────────────────────────────────────────────┤
+│                  Hardware                        │
+│    (STM32F429, ILI9341, STMPE811, SDRAM)         │
+└──────────────────────────────────────────────────┘
 ```
 
 ### TouchGFX MVP Pattern
 
-The user interface implements the Model-View-Presenter (MVP) pattern as prescribed by TouchGFX:
+**Model** (`Model.cpp`) contains game state and logic:
+- Game board: `uint8_t _board[TETRIS_BOARD_WIDTH][TETRIS_BOARD_HEIGHT]` (10×18)
+- Active piece tracking with `ActivePiece` class
+- Score and high score management
+- Collision detection and line clearing
+- Tick-based game advancement
 
-**Model** contains the core game state and logic including the game board array, active tetromino tracking, score management, and collision detection algorithms. The Model operates independently of the display and processes game ticks to advance the game state.
+**View** (`GameView.cpp`, `WelcomeView.cpp`) handles visual representation:
+- Widget management for score display, game board tiles
+- Dynamic tile visibility based on board state
+- Game over overlay display
 
-**View** handles all visual representation through TouchGFX widgets. Each screen (Welcome, Game) has a corresponding View class that manages widget creation, positioning, and updates. The View receives display commands from the Presenter and translates them into widget manipulations.
+**Presenter** (`GamePresenter.cpp`) bridges Model and View:
+- Implements `ModelListener` interface
+- Forwards `on_score_change`, `on_highscore_change`, `display_board`, `gameover` events
+- Controls `ingame` state on screen transitions
 
-**Presenter** acts as the intermediary between Model and View. It implements the ModelListener interface to receive game state change notifications and forwards relevant updates to the View. The Presenter also handles screen transitions and user input routing.
+From `FrontendApplication.hpp`:
+```cpp
+virtual void handleTickEvent()
+{
+    model.tick();
+    FrontendApplicationBase::handleTickEvent();
+}
+```
 
 ### Task Structure
 
-FreeRTOS manages concurrent execution with the following task configuration:
+FreeRTOS manages concurrent execution:
 
-| Task | Priority | Stack Size | Responsibility |
-|------|----------|------------|----------------|
-| TouchGFX | Normal | 4096 bytes | Graphics rendering, UI event handling |
-| Default | Normal | 512 bytes | System initialization, idle processing |
+| Task | Stack Size | Responsibility |
+|------|------------|----------------|
+| TouchGFX | 4096 bytes | Graphics rendering, UI events, game tick |
+| Default | 512 bytes | System initialization |
 
-Inter-task communication uses FreeRTOS message queues. The `channel` queue transmits button events from the input handler to the game model for processing.
+Inter-task communication uses a FreeRTOS message queue (`channel`) to transmit button events to the game model:
+
+From `Model.cpp`:
+```cpp
+while (osMessageQueueGet(channel, &message, NULL, 0) == osOK)
+{
+    if (message == MESSAGE_BUTTON_UP)
+        _active.rotate(_board);
+    else if (message == MESSAGE_BUTTON_RIGHT)
+        _active.move(1, 0, _board);
+    // ...
+}
+```
 
 ### Game Logic
 
-The Tetris game engine implements standard mechanics:
+**Board Representation**: 10×18 cell array (`TETRIS_BOARD_WIDTH` × `TETRIS_BOARD_HEIGHT`). Non-zero values indicate occupied cells. Game over triggers when any block occupies row 15 (`TETRIS_GAMEOVER_ROW`).
 
-**Board Representation** uses a 10x18 cell array where each cell stores occupancy state. The visible play area spans rows 0-14, with rows 15-17 serving as the spawn zone. Game over triggers when any block occupies row 15 after piece placement.
+**Tetromino Encoding**: Each piece stored as 16-bit bitmap in 4×4 grid. Four rotation states precomputed for all 7 pieces:
 
-**Tetromino Encoding** represents each piece as a 16-bit bitmap arranged in a 4x4 grid. Four rotation states are precomputed for each of the seven piece types, enabling O(1) rotation lookups.
+From `Model.hpp`:
+```cpp
+inline static constexpr uint16_t _PIECES[7][4] = {
+    {0xF000, 0x1111, 0xF000, 0x1111},  // I
+    {0x3300, 0x3300, 0x3300, 0x3300},  // O
+    {0x7200, 0x2620, 0x2700, 0x2320},  // T
+    // ... S, Z, J, L
+};
+```
 
-**Collision Detection** validates moves by checking the proposed position against board boundaries and existing blocks. The algorithm accounts for the current piece position to avoid self-collision.
+**Collision Detection**: `_is_valid_move()` checks proposed position against board boundaries and existing blocks, excluding current piece position to prevent self-collision.
 
-**Line Clearing** scans completed rows after each piece placement, removes full rows, and shifts all rows above downward. Each cleared line increments the score.
+**Line Clearing**: After piece placement, `_check_final_state()` scans for complete rows, removes them, shifts rows above downward, and increments score.
 
-**Timing** controls piece descent at 1000ms intervals using FreeRTOS tick counting. Player inputs are processed immediately upon receipt.
+**Timing**: Pieces fall every 1000ms using tick counting:
+
+From `Model.cpp`:
+```cpp
+static const uint32_t ticks_to_wait = osKernelGetTickFreq() * MILLISECONDS_BETWEEN_FALLS / 1000;
+// MILLISECONDS_BETWEEN_FALLS = 1000
+```
 
 ### Graphics Pipeline
 
-The rendering pipeline leverages hardware acceleration:
+1. `Model::tick()` updates game state
+2. `ModelListener::display_board()` notifies presenter of changes
+3. `GameView::display_board()` updates tile widget visibility
+4. TouchGFX determines dirty regions and generates draw operations
+5. DMA2D executes hardware-accelerated rendering
+6. LTDC scans front buffer to display
+7. Buffer swap occurs at VSYNC (`HAL_LTDC_LineEventCallback`)
 
-1. TouchGFX framework manages the scene graph and determines dirty regions
-2. Widget draw calls generate primitive operations (fills, blits, copies)
-3. DMA2D executes operations in hardware, freeing the CPU
-4. LTDC continuously scans the front buffer to the display
-5. Buffer swap occurs during vertical blanking to prevent tearing
+### Display Layout
 
-Frame buffers reside in external SDRAM with double buffering. The animation storage buffer provides additional space for transition effects.
+From `Tetris.hpp`:
+```cpp
+#define TETRIS_TILE_SIZE    18      // Pixels per cell
+#define TETRIS_FIELD_LEFT   60      // Left margin (score panel width)
+#define TETRIS_FIELD_BOTTOM 320     // Bottom of play field
+```
 
-### Peripheral Drivers
+Game field: 180×324 pixels (10×18 cells × 18px), offset 60px from left for score panel.
 
-**LTDC Driver** configures display timing, layer properties, and handles VSYNC interrupts for frame synchronization.
+## Project Structure
 
-**DMA2D Driver** provides hardware-accelerated graphics operations with support for multiple pixel formats and alpha blending modes.
+```
+├── Core/                      # STM32 application code
+│   ├── Inc/                   # Headers (main.h, messages.h, sounds.h)
+│   └── Src/                   # Sources (main.c, freertos.c, stm32f4xx_it.c)
+├── Drivers/
+│   ├── BSP/Components/        # ILI9341, STMPE811 drivers
+│   ├── CMSIS/                 # ARM CMSIS headers
+│   └── STM32F4xx_HAL_Driver/  # STM32 HAL library
+├── Middlewares/
+│   ├── ST/touchgfx/           # TouchGFX framework
+│   └── Third_Party/FreeRTOS/  # FreeRTOS kernel
+├── TouchGFX/
+│   ├── App/                   # TouchGFX application entry
+│   ├── assets/                # Images, fonts, texts
+│   ├── generated/             # Auto-generated code
+│   ├── gui/
+│   │   ├── include/gui/
+│   │   │   ├── common/        # FrontendApplication, FrontendHeap, Tetris.hpp
+│   │   │   ├── model/         # Model.hpp, ModelListener.hpp
+│   │   │   ├── game_screen/   # GameView.hpp, GamePresenter.hpp
+│   │   │   └── welcome_screen/
+│   │   └── src/               # Implementation files
+│   └── target/                # HAL integration, touch controller
+├── STM32CubeIDE/              # IDE project files, linker scripts
+├── sounds/
+│   ├── main.py                # Python audio player
+│   ├── requirements.txt       # Python dependencies
+│   └── wav/                   # Sound effect files
+└── readme.md
+```
 
-**I2C Driver** manages communication with the touch controller using HAL blocking transfers.
+## Development Environment
 
-**UART Driver** transmits sound effect commands using HAL blocking mode for simplicity.
+| Tool | Version |
+|------|---------|
+| STM32CubeIDE | 1.19.0 |
+| TouchGFX Designer | 4.25.0 |
 
-**FMC Driver** initializes and manages the external SDRAM interface with appropriate timing parameters.
+## Building and Flashing
+
+1. Open `STM32CubeIDE/` as workspace
+2. Import the project
+3. Build Debug or Release configuration
+4. Connect ST-LINK and flash to board
+
+Or use TouchGFX Designer for direct flashing with GCC and STM32CubeProgrammer.
+
+## Audio System Setup
+
+### Hardware Connection
+
+Connect USB-to-UART adapter:
+- Board TX (PA9/USART1_TX) → Adapter RX
+- Board GND → Adapter GND
+
+### Software Setup
+
+```bash
+cd sounds
+pip install -r requirements.txt
+python main.py COM3  # Replace with your port
+```
+
+The script listens for commands and plays corresponding WAV files from `sounds/wav/`:
+- `CONTROL` → `SFX_PieceMoveLR.wav` (piece movement)
+- `SCORE` → `SFX_SpecialLineClearTriple.wav` (line cleared)
+- `GAMEOVER` → `SFX_GameOver.wav` (game over)
 
 ## Usage
 
 ### Controls
 
-Touch the screen in different regions to control the game:
+Touch regions map to game actions (determined by touch Y-coordinate relative to active piece):
 
 | Touch Region | Action |
 |--------------|--------|
@@ -171,8 +309,16 @@ Touch the screen in different regions to control the game:
 
 ### Gameplay
 
-1. Power on the board to display the Welcome screen
-2. Touch "START" to begin the game
-3. Guide falling tetrominoes to complete horizontal lines
-4. Completed lines are cleared and award points
-5. Game ends when blocks stack above the play area
+1. Power on → Welcome screen appears
+2. Touch "START" → Game begins
+3. Guide falling tetrominoes to complete rows
+4. Completed rows clear and award points
+5. Game ends when blocks reach row 15
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Regenerate TouchGFX code before committing
+4. Format with VSCode C/C++ formatter
+5. Submit pull request
