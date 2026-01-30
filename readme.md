@@ -6,9 +6,9 @@ A classic Tetris game implementation running on the STM32F429I-DISCO development
 
 | Member | Responsibilities |
 |--------|------------------|
-| **Bui Quang Phong** | Hardware setup, BSP drivers (ILI9341, STMPE811), touch calibration |
-| **Nguyen Thai Hoa** | Game logic (Model.cpp), collision detection, line clearing, scoring system |
-| **Nguyen Viet Tuan Kiet** | TouchGFX UI (Views, Presenters), graphics assets, audio integration |
+| **Bui Quang Phong** | Audio integration, hardware setup |
+| **Nguyen Thai Hoa** | Game logic |
+| **Nguyen Viet Tuan Kiet** | TouchGFX UI (Views, Presenters), graphics assets |
 
 ## Table of Contents
 
