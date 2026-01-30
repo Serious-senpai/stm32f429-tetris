@@ -167,9 +167,9 @@
             "Color": {
               "Red": 255
             },
-            "StartY": 32.0,
+            "StartY": 50.0,
             "EndX": 180.0,
-            "EndY": 32.0,
+            "EndY": 50.0,
             "LineWidth": 1.0,
             "LineEndingStyle": "Butt"
           }
